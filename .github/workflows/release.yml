@@ -6,21 +6,43 @@ on:
       - 'v*'
 
 jobs:
-  release:
+  create-release:
     permissions:
       contents: write
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - platform: 'macos-latest'
-            args: '--target universal-apple-darwin'
-          - platform: 'ubuntu-22.04'
-            args: ''
-          - platform: 'windows-latest'
-            args: ''
+    runs-on: ubuntu-22.04
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      release_id: ${{ steps.create_release.outputs.id }}
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Librarian ${{ github.ref_name }}
+          body: |
+            ## 🚀 Librarian ${{ github.ref_name }}
+            
+            ### 主要機能
+            - Agent Library プロンプト管理システム  
+            - MCP サーバー統合によるAIツール連携
+            - マルチリポジトリ対応・動的追加削除
+            - Tauri v2 + Svelte 5 による高性能デスクトップアプリ
+            
+            ### ダウンロード  
+            - **macOS**: `.dmg` ファイル（Universal Binary - Intel/Apple Silicon両対応）
+            
+            🤖 Generated with Claude Code
+          draft: false
+          prerelease: false
 
-    runs-on: ${{ matrix.platform }}
+  build-macos:
+    needs: create-release
+    permissions:
+      contents: write
+    runs-on: macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -34,41 +56,31 @@ jobs:
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
-
-      - name: Install system dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-22.04'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+          targets: 'aarch64-apple-darwin,x86_64-apple-darwin'
 
       - name: Install Node dependencies
         run: npm ci
 
-      - name: Build the app
-        uses: tauri-apps/tauri-action@v0
+      - name: Build macOS app
+        run: npm run tauri build -- --target universal-apple-darwin
+
+      - name: Upload DMG to Release
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'Librarian ${{ github.ref_name }}'
-          releaseBody: |
-            ## 🚀 Librarian ${{ github.ref_name }}
-            
-            ### 主要機能
-            - Agent Library プロンプト管理システム  
-            - MCP サーバー統合によるAIツール連携
-            - マルチリポジトリ対応・動的追加削除
-            - Tauri v2 + Svelte 5 による高性能デスクトップアプリ
-            
-            ### ダウンロード
-            お使いのOSに対応したインストーラーをダウンロードしてください：
-            - **macOS**: `.dmg` ファイル（Universal Binary - Intel/Apple Silicon両対応）  
-            - **Windows**: `.msi` ファイル
-            - **Linux**: `.deb` / `.AppImage` ファイル
-            
-            🤖 Generated with Claude Code
-          releaseDraft: false
-          prerelease: false
-          args: ${{ matrix.args }}
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: src-tauri/target/universal-apple-darwin/release/bundle/dmg/Librarian_1.0.0_universal.dmg
+          asset_name: Librarian_${{ github.ref_name }}_universal.dmg
+          asset_content_type: application/octet-stream
+
+      - name: Upload App Bundle to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: src-tauri/target/universal-apple-darwin/release/bundle/macos/Librarian.app.tar.gz
+          asset_name: Librarian_${{ github.ref_name }}_universal.app.tar.gz
+          asset_content_type: application/gzip
 
