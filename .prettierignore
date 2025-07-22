@@ -1,0 +1,15 @@
+# Tauri Rust backend
+src-tauri/
+
+# Build artifacts
+dist/
+target/
+node_modules/
+
+# Generated files
+src-tauri/gen/
+src-tauri/target/
+
+# Lock files
+package-lock.json
+Cargo.lock

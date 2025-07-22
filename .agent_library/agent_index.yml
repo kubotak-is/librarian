@@ -1,0 +1,91 @@
+name: 'Librarian Development Library'
+description: 'AI Agent prompts and guides for developing the Librarian MCP desktop application'
+version: '1.0.0'
+author: 'Librarian Development Team'
+
+categories:
+  - tauri-development
+  - svelte-frontend
+  - rust-backend
+  - mcp-protocol
+  - testing-qa
+
+mcp_endpoints:
+  - id: tauri_setup
+    label: 'Tauri プロジェクト設定'
+    description: 'Tauri + Svelte 5プロジェクトの設定と構成方法'
+    prompt_file: 'TAURI_SETUP.md'
+    trigger: 'setup'
+    category: 'tauri-development'
+  - id: svelte5_components
+    label: 'Svelte 5 コンポーネント開発'
+    description: 'Svelte 5でのコンポーネント作成とstate管理のベストプラクティス'
+    prompt_file: 'SVELTE5_COMPONENTS.md'
+    trigger: 'frontend'
+    category: 'svelte-frontend'
+  - id: rust_mcp_server
+    label: 'Rust MCP サーバー実装'
+    description: 'AxumとJSON-RPCを使ったMCPサーバーの実装方法'
+    prompt_file: 'RUST_MCP_SERVER.md'
+    trigger: 'backend'
+    category: 'rust-backend'
+  - id: mcp_protocol
+    label: 'MCP プロトコル仕様'
+    description: 'Model Context Protocolの仕様と実装ガイドライン'
+    prompt_file: 'MCP_PROTOCOL.md'
+    trigger: 'protocol'
+    category: 'mcp-protocol'
+  - id: frontend_quality
+    label: 'フロントエンド品質管理'
+    description: 'svelte-check、ESLint、Prettierを使った品質管理'
+    prompt_file: 'FRONTEND_QUALITY.md'
+    trigger: 'quality-frontend'
+    category: 'testing-qa'
+  - id: rust_quality
+    label: 'Rust 品質管理'
+    description: 'Clippy、rustfmt、テストを使ったRustコード品質管理'
+    prompt_file: 'RUST_QUALITY.md'
+    trigger: 'quality-rust'
+    category: 'testing-qa'
+  - id: tauri_commands
+    label: 'Tauri コマンド開発'
+    description: 'フロントエンドとバックエンド間のTauriコマンド実装'
+    prompt_file: 'TAURI_COMMANDS.md'
+    trigger: 'commands'
+    category: 'tauri-development'
+  - id: debugging_guide
+    label: 'デバッグ・トラブルシューティング'
+    description: 'Tauri + Svelte + Rustアプリケーションのデバッグ方法'
+    prompt_file: 'DEBUGGING_GUIDE.md'
+    trigger: 'debug'
+    category: 'testing-qa'
+  - id: compile_check_guide
+    label: 'コンパイルエラー防止ガイド'
+    description: 'Rustコード変更時のコンパイルエラーを事前に防ぐためのガイドライン'
+    prompt_file: 'COMPILE_CHECK_GUIDE.md'
+    trigger: 'compile-check'
+    category: 'rust-backend'
+  - id: unit_testing_guide
+    label: 'ユニットテスト実装ガイド'
+    description: 'Rustとフロントエンドでのユニットテスト実装方法とベストプラクティス'
+    prompt_file: 'UNIT_TESTING_GUIDE.md'
+    trigger: 'unit-test'
+    category: 'testing-qa'
+  - id: integration_testing_guide
+    label: '統合テスト実装ガイド'
+    description: 'E2Eテストと統合テストの実装方法とベストプラクティス'
+    prompt_file: 'INTEGRATION_TESTING_GUIDE.md'
+    trigger: 'integration-test'
+    category: 'testing-qa'
+  - id: ui_ux_improvement_guide
+    label: 'UI/UX改善ガイド'
+    description: 'レスポンシブデザインとユーザビリティ向上のためのガイドライン'
+    prompt_file: 'UI_UX_IMPROVEMENT_GUIDE.md'
+    trigger: 'ui-ux'
+    category: 'svelte-frontend'
+  - id: project_distribution_guide
+    label: 'プロジェクト配布ガイド'
+    description: 'クロスプラットフォーム配布とインストーラー作成の完全ガイド'
+    prompt_file: 'PROJECT_DISTRIBUTION_GUIDE.md'
+    trigger: 'distribution'
+    category: 'tauri-development'

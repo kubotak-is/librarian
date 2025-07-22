@@ -1,0 +1,24 @@
+# Rustfmt configuration for Librarian project
+
+# 最大行長
+max_width = 100
+
+# インデント
+hard_tabs = false
+tab_spaces = 4
+
+# インポート整理
+reorder_imports = true
+group_imports = "StdExternalCrate"
+
+# 関数定義
+fn_args_layout = "Tall"
+brace_style = "SameLineWhere"
+
+# コメント
+comment_width = 80
+wrap_comments = true
+
+# その他
+trailing_comma = "Vertical"
+edition = "2021"
