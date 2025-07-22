@@ -23,6 +23,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
       - name: Get version
         run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
 
@@ -36,7 +41,21 @@ jobs:
               repo: context.repo.repo,
               tag_name: `v${process.env.PACKAGE_VERSION}`,
               name: `Librarian v${process.env.PACKAGE_VERSION}`,
-              body: 'See the assets to download this version and install.',
+              body: `## 🚀 Librarian v${process.env.PACKAGE_VERSION}
+
+            ### 主要機能
+            - Agent Library プロンプト管理システム
+            - MCP サーバー統合によるAIツール連携
+            - マルチリポジトリ対応・動的追加削除
+            - Tauri v2 + Svelte 5 による高性能デスクトップアプリ
+
+            ### ダウンロード
+            お使いのOSに対応したインストーラーをダウンロードしてください：
+            - **macOS**: \`.dmg\` ファイル（Universal Binary - Intel/Apple Silicon両対応）
+            - **Windows**: \`.msi\` ファイル
+            - **Linux**: \`.deb\` / \`.AppImage\` ファイル
+
+            🤖 Generated with Claude Code`,
               draft: true,
               prerelease: false
             })
@@ -49,10 +68,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-latest]
         include:
-          - platform: macos-latest
-            rust_target: universal-apple-darwin
+          - platform: 'macos-latest'
+            args: '--target universal-apple-darwin'
+          - platform: 'ubuntu-20.04'
+            args: ''
+          - platform: 'windows-latest'
+            args: ''
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -62,13 +84,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: 'npm'
 
-      - name: Setup Rust
+      - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.rust_target }}
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-20.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
@@ -78,8 +106,9 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
-      - name: Run tests
+      - name: Run quality checks
         run: |
+          npm run quality || true
           npm run test:run || true
           cd src-tauri && cargo test --release || true
 
@@ -87,11 +116,9 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
-          args: --target ${{ matrix.rust_target }}
+          args: ${{ matrix.args }}
 
   publish-release:
     permissions:
