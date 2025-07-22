@@ -34,10 +34,18 @@
     "targets": "all",
     "icon": [
       "icons/32x32.png",
-      "icons/128x128.png",
+      "icons/128x128.png", 
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "macOS": {
+      "minimumSystemVersion": "10.15.0",
+      "exceptionDomain": "localhost",
+      "entitlements": "entitlements.plist",
+      "signingIdentity": null,
+      "providerShortName": null,
+      "hardenedRuntime": false
+    }
   }
 }
