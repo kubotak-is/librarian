@@ -6,40 +6,7 @@ on:
       - 'v*'
 
 jobs:
-  create-release:
-    permissions:
-      contents: write
-    runs-on: ubuntu-22.04
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-      release_id: ${{ steps.create_release.outputs.id }}
-    steps:
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Librarian ${{ github.ref_name }}
-          body: |
-            ## 🚀 Librarian ${{ github.ref_name }}
-            
-            ### 主要機能
-            - Agent Library プロンプト管理システム  
-            - MCP サーバー統合によるAIツール連携
-            - マルチリポジトリ対応・動的追加削除
-            - Tauri v2 + Svelte 5 による高性能デスクトップアプリ
-            
-            ### ダウンロード  
-            - **macOS**: `.dmg` ファイル（Universal Binary - Intel/Apple Silicon両対応）
-            
-            🤖 Generated with Claude Code
-          draft: false
-          prerelease: false
-
-  build-macos:
-    needs: create-release
+  build-and-release:
     permissions:
       contents: write
     runs-on: macos-latest
@@ -64,23 +31,25 @@ jobs:
       - name: Build macOS app
         run: npm run tauri build -- --target universal-apple-darwin
 
-      - name: Upload DMG to Release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v1
         with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: src-tauri/target/universal-apple-darwin/release/bundle/dmg/Librarian_1.0.0_universal.dmg
-          asset_name: Librarian_${{ github.ref_name }}_universal.dmg
-          asset_content_type: application/octet-stream
-
-      - name: Upload App Bundle to Release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: src-tauri/target/universal-apple-darwin/release/bundle/macos/Librarian.app.tar.gz
-          asset_name: Librarian_${{ github.ref_name }}_universal.app.tar.gz
-          asset_content_type: application/gzip
+          name: Librarian ${{ github.ref_name }}
+          body: |
+            ## 🚀 Librarian ${{ github.ref_name }}
+            
+            ### 主要機能
+            - Agent Library プロンプト管理システム  
+            - MCP サーバー統合によるAIツール連携
+            - マルチリポジトリ対応・動的追加削除
+            - Tauri v2 + Svelte 5 による高性能デスクトップアプリ
+            
+            ### ダウンロード  
+            - **macOS**: `.dmg` ファイル（Universal Binary - Intel/Apple Silicon両対応）
+            
+            🤖 Generated with Claude Code
+          files: |
+            src-tauri/target/universal-apple-darwin/release/bundle/dmg/Librarian_*.dmg
+          draft: false
+          prerelease: false
 
